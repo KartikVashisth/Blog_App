@@ -26,7 +26,7 @@ app.use(require("express-session")({
   resave: false,
   saveUninitialized: false
 }));
-app.use(passport.authenticate());
+app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
@@ -44,7 +44,7 @@ app.get("/blogs", function(req, res){
     if(err)
       console.log(err);
     else
-      res.render("index", {blogs : allblogs});
+      res.render("blog/index", {blogs : allblogs});
   });
 });
 
@@ -61,7 +61,7 @@ app.post("/blogs", function(req, res){
 
 //NEW
 app.get("/blogs/new", function(req, res){
-  res.render("new");
+  res.render("blog/new");
 });
 
 //SHOW
@@ -70,7 +70,7 @@ app.get("/blogs/:id", function(req, res){
     if(err)
       res.redirect("/blogs")
     else
-      res.render("show", {blog: foundBlog});
+      res.render("blog/show", {blog: foundBlog});
   });
 });
 //EDIT ROUTE GET
@@ -79,7 +79,7 @@ app.get("/blogs/:id/edit", function(req, res){
     if(err)
       res.render("/blogs");
     else
-      res.render("edit", {blogs:foundblog});
+      res.render("blog/edit", {blogs:foundblog});
   })
 })
 //UPDATE ROUTE
