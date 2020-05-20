@@ -3,36 +3,35 @@ var express = require("express"),
     methodOverride = require("method-override"),
     expressSanitizer = require("express-sanitizer"),
     mongoose = require("mongoose"),
-    app = express();
+    app = express(),
+    Blog = require("./models/blog"),
+    User = require("./models/user"),
+    passport = require("passport"),
+    LocalStrategy = require("passport-local"),
+    passport_local_mongoose = require("passport-local-mongoose");
+
+
 
 //APP Config
-mongoose.connect("mongodb://localhost:27017/blog_app", {useNewUrlParser : true});
+mongoose.connect("mongodb://localhost:27017/blog_app", {useNewUrlParser : true, useUnifiedTopology: true});
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(methodOverride("_method"));
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(expressSanitizer());
-//Title Image Body Created(Date)
-//Mongoose model schema
-var blogSchema = new mongoose.Schema({
-  title : String,
-  image : String,
-  body : String,
-  created : {type : Date, default : Date.now}
-});
 
-var Blog = mongoose.model("Blog", blogSchema);
+//Passport Config
+app.use(require("express-session")({
+  secret: "Rusty is a bad dog",
+  resave: false,
+  saveUninitialized: false
+}));
+app.use(passport.authenticate());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
-/*Blog.create({
-  title : "Test Blog",
-  image : "https://images.unsplash.com/photo-1587242563826-a438ce9e3cc8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
-  body : "Hello this is blog post"
-  }, function(err, blog){
-    if(err)
-      console.log(err)
-    else
-      console.log("Successfully added");
-});*/
 
 //Restfull Routes
 app.get("/", function(req, res){
