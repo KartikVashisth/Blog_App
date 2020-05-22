@@ -11,11 +11,13 @@
       <div class="description">
         <p><%- blog.body %></p> 
       </div>
-      <div class = "ui violet big basic button"><a href="/blogs/<%= blog._id %>/edit">EDIT</a></div>
-        <form action = "/blogs/<%= blog._id %>?_method=DELETE" method = "POST" style="text-align:right;float:left;">
-          <input class = "ui red big basic button" type = "submit" value="DELETE">
-        </form>
-    </div>
+      <% if(blog.owner.id.equals(currUser._id)){ %>
+        <div class = "ui violet big basic button"><a href="/blogs/<%= blog._id %>/edit">EDIT</a></div>
+          <form action = "/blogs/<%= blog._id %>?_method=DELETE" method = "POST" style="text-align:right;float:left;">
+            <input class = "ui red big basic button" type = "submit" value="DELETE">
+          </form>
+        </div>
+      <% } %>
   </div>
 </div>
 

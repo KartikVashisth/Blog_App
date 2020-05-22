@@ -10,7 +10,8 @@ var express = require("express"),
     LocalStrategy = require("passport-local"),
     passport_local_mongoose = require("passport-local-mongoose");
 
-
+var blog_routes = require('./routes/blog'),
+    index_routes = require('./routes/index');
 
 //APP Config
 mongoose.connect("mongodb://localhost:27017/blog_app", {useNewUrlParser : true, useUnifiedTopology: true});
@@ -32,72 +33,14 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-
-//Restfull Routes
-app.get("/", function(req, res){
-  res.redirect("/blogs");
-});
-
-//INDEX
-app.get("/blogs", function(req, res){
-  Blog.find({}, function(err, allblogs){
-    if(err)
-      console.log(err);
-    else
-      res.render("blog/index", {blogs : allblogs});
-  });
-});
-
-//CREATE
-app.post("/blogs", function(req, res){
-  req.body.blog.body = req.sanitize(req.body.blog.body);
-  Blog.create(req.body.blog, function(err, new_blog){
-    if(err)
-      console.log(err);
-    else
-      res.redirect("/blogs");
-  });
-});
-
-//NEW
-app.get("/blogs/new", function(req, res){
-  res.render("blog/new");
-});
-
-//SHOW
-app.get("/blogs/:id", function(req, res){
-  Blog.findById(req.params.id, function(err, foundBlog){
-    if(err)
-      res.redirect("/blogs")
-    else
-      res.render("blog/show", {blog: foundBlog});
-  });
-});
-//EDIT ROUTE GET
-app.get("/blogs/:id/edit", function(req, res){
-  Blog.findById(req.params.id, function(err, foundblog){
-    if(err)
-      res.render("/blogs");
-    else
-      res.render("blog/edit", {blogs:foundblog});
-  })
+app.use(function(req, res, next){
+  res.locals.currUser = req.user;
+  next(); 
 })
-//UPDATE ROUTE
-app.put("/blogs/:id", function(req, res){
-  req.body.blog.body = req.sanitize(req.body.blog.body);
-  Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updateblog){
-    if(err)
-      res.redirect("/blogs");
-    else
-      res.redirect("/blogs/" + req.params.id);
-  })
-})
-//DELETE ROUTE
-app.delete("/blogs/:id", function(req, res){
-  Blog.findByIdAndDelete(req.params.id, function(err, deletedblog){
-    res.redirect("/blogs");
-  })
-})
+
+app.use('/blogs', blog_routes);
+app.use(index_routes);
+
 app.listen(process.env.PORT, process.env.IP, function(){
   console.log("Server is running");
 });
